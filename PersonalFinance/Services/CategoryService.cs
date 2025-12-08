@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PersonalFinance.Enums
+namespace PersonalFinance.Services
 {
-    public enum FrequencyOfTransaction
+    public class CategoryService : ICategoryService
     {
-        OneTime,
-        Monthly,
-        Yearly
     }
 }

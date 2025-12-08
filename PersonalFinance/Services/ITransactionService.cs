@@ -5,16 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PersonalFinance.Data
+namespace PersonalFinance.Services
 {
-    public interface ITransactionRepository
+    public interface ITransactionService
     {
-        Task<FinancialTransaction?> GetTransactionByIdAsync(int id);
         Task<IEnumerable<FinancialTransaction>> GetAllTransactionsAsync();
         Task<IEnumerable<FinancialTransaction>> GetAllIncomeTransactionsAsync();
         Task<IEnumerable<FinancialTransaction>> GetAllExpenseTransactionsAsync();
-        Task AddAsync(FinancialTransaction transaction);
-        Task EditAsync(FinancialTransaction transaction);
-        Task DeleteAsync(int id);
+        Task<FinancialTransaction?> GetTransactionByIdAsync(int id);
+        Task AddTransactionAsync(FinancialTransaction transaction);
+        Task EditTransactionAsync(FinancialTransaction transaction);
+        Task DeleteTransactionAsync(int id);
+
     }
 }

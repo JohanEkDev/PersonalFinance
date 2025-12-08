@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PersonalFinance.Enums;
 using PersonalFinance.Models;
 using System;
 using System.Collections.Generic;
@@ -17,41 +18,47 @@ namespace PersonalFinance.Data
             _context = context;
         }
 
-        public Task<IEnumerable<Transaction>> GetAllExpenseTransactionsAsync()
+        public async Task<FinancialTransaction?> GetTransactionByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Transactions.FindAsync(id);
         }
 
-        public Task<IEnumerable<Transaction>> GetAllIncomeTransactionsAsync()
+        public async Task<IEnumerable<FinancialTransaction>> GetAllTransactionsAsync()
         {
-            throw new NotImplementedException();
+           return await _context.Transactions.ToListAsync();
         }
 
-        public Task<IEnumerable<Transaction>> GetAllTransactionsAsync()
+        public async Task<IEnumerable<FinancialTransaction>> GetAllIncomeTransactionsAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Transactions.Where(t => t.Type == TypeOfTransaction.Income).ToListAsync();
         }
 
-        public Task<Transaction?> GetTransactionByIdAsync()
+        public async Task<IEnumerable<FinancialTransaction>> GetAllExpenseTransactionsAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Transactions.Where(t => t.Type == TypeOfTransaction.Expense).ToListAsync();
         }
 
-        public void SaveAsync()
+        public async Task AddAsync(FinancialTransaction transaction)
         {
-            _context.SaveChangesAsync();
+            await _context.Transactions.AddAsync(transaction);
+            await _context.SaveChangesAsync();
         }
 
-        public void EditAsync()
+        public async Task EditAsync(FinancialTransaction transaction)
         {
-            _context.SaveChangesAsync();
+            _context.Transactions.Update(transaction);
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
+            var transaction = await _context.Transactions.FindAsync(id);
 
-
-            _context.Remove(id);
+            if (transaction != null)
+            {
+                _context.Transactions.Remove(transaction);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

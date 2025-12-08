@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using PersonalFinance.Services;
+using PersonalFinance.ViewModels;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -16,9 +18,19 @@ namespace PersonalFinance
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        private readonly MainWindowViewModel _viewModel;
+
+        public MainWindow(MainWindowViewModel viewModel)
         {
             InitializeComponent();
+            _viewModel = viewModel;
+            DataContext = _viewModel;
+            //Loaded += MainWindow_Loaded;
+        }
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            //await _viewModel.LoadAsync();
         }
     }
 }

@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PersonalFinance.Enums
+namespace PersonalFinance.Data
 {
-    public enum FrequencyOfTransaction
+    public interface ICategoryRepository
     {
-        OneTime,
-        Monthly,
-        Yearly
     }
 }

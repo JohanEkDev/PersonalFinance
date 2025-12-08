@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PersonalFinance.Enums
+namespace PersonalFinance.ViewModels
 {
-    public enum FrequencyOfTransaction
+    public class CategoriesViewModel : ViewModelBase
     {
-        OneTime,
-        Monthly,
-        Yearly
+        public string Title => "Categories";
     }
 }

@@ -10,19 +10,17 @@ namespace PersonalFinance.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        private readonly string _connectionString;
-
-        public ApplicationDbContext(string connectionString)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-            _connectionString = connectionString;
+
         }
 
-        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<FinancialTransaction> Transactions { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            optionsBuilder.UseSqlServer(
-                @"Server=(localdb)\mssqllocaldb;Database=Test;ConnectRetryCount=0");
+
         }
     }
 }

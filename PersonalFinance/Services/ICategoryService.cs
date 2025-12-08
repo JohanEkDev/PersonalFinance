@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PersonalFinance.ViewModels
+namespace PersonalFinance.Services
 {
-    public class ViewModelBase
+    public interface ICategoryService
     {
-
     }
 }
