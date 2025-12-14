@@ -18,10 +18,19 @@ namespace PersonalFinance.Views
 {
     public partial class IncomeView : UserControl
     {
+        private readonly IncomeViewModel _vm;
+
         public IncomeView(IncomeViewModel vm)
         {
             InitializeComponent();
+            _vm = vm;
             DataContext = vm;
+            Loaded += IncomeView_Loaded;
+        }
+
+        private async void IncomeView_Loaded(object sender, RoutedEventArgs e)
+        {
+            await _vm.LoadAsync();
         }
     }
 }

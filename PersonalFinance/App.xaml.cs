@@ -35,6 +35,7 @@ namespace PersonalFinance
                     //Add Service.
                     services.AddTransient<ITransactionService, TransactionService>();
                     services.AddTransient<ICategoryService, CategoryService>();
+                    services.AddTransient<ISummaryService, SummaryService>();
 
                     //Add ViewModels.
                     services.AddTransient<SummaryViewModel>();

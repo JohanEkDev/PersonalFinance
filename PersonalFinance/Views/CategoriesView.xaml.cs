@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PersonalFinance.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,14 +16,21 @@ using System.Windows.Shapes;
 
 namespace PersonalFinance.Views
 {
-    /// <summary>
-    /// Interaction logic for CategoriesView.xaml
-    /// </summary>
     public partial class CategoriesView : UserControl
     {
-        public CategoriesView()
+        private readonly CategoriesViewModel _vm;
+
+        public CategoriesView(CategoriesViewModel vm)
         {
             InitializeComponent();
+            _vm = vm;
+            DataContext = vm;
+            Loaded += CategoriesView_Loaded;
+        }
+
+        private async void CategoriesView_Loaded(object sender, RoutedEventArgs e)
+        {
+            await _vm.LoadAsync();
         }
     }
 }

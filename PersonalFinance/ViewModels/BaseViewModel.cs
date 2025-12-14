@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PersonalFinance.ViewModels
 {
-    public class ViewModelBase : INotifyPropertyChanged
+    public class BaseViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 

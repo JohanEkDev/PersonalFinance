@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PersonalFinance.ViewModels
 {
-    public class TransactionItemViewModel : ViewModelBase
+    public class TransactionItemViewModel : BaseViewModel
     {
     }
 }

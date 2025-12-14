@@ -13,6 +13,8 @@ namespace PersonalFinance.Models
         public int Amount { get; set; }
         public TypeOfTransaction Type { get; set; }
         public FrequencyOfTransaction Frequency {  get; set; }
+
+        public int CategoryId { get; set; }
         public Category Category { get; set; } = new();
     }
 }

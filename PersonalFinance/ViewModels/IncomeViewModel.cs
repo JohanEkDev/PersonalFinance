@@ -12,47 +12,76 @@ using System.Windows;
 
 namespace PersonalFinance.ViewModels
 {
-    public class IncomeViewModel : ViewModelBase
+    public class IncomeViewModel : BaseViewModel
     {
         private readonly ITransactionService _transactionService;
+        private readonly ICategoryService _categoryService;
 
         public ObservableCollection<FinancialTransaction> Transactions { get; } = new();
+        public ObservableCollection<Category> AllCategories { get; } = new();
 
         private FinancialTransaction? _selectedTransaction;
         public FinancialTransaction? SelectedTransaction
         {
-            get => _selectedTransaction;
+            get { return _selectedTransaction; }
             set { _selectedTransaction = value; RaisePropertyChanged(); PopulateEditFields(); }
         }
 
         // Editing / add fields (simple approach)
         public int Amount { get; set; }
         public FrequencyOfTransaction Frequency { get; set; } = FrequencyOfTransaction.OneTime;
-        public string CategoryName { get; set; } = string.Empty;
+        private Category? _selectedCategory;
+        public Category? SelectedCategory
+        {
+            get { return _selectedCategory; }
+            set { _selectedCategory = value; RaisePropertyChanged(); }
+        }
 
         // Expose frequencies for ComboBox binding
         public IEnumerable<FrequencyOfTransaction> Frequencies =>
             Enum.GetValues(typeof(FrequencyOfTransaction)).Cast<FrequencyOfTransaction>();
 
-        // Commands
-        public RelayCommand LoadCommand { get; }
+        //Commands.
         public RelayCommand AddCommand { get; }
         public RelayCommand SaveCommand { get; }
         public RelayCommand DeleteCommand { get; }
         public RelayCommand ClearCommand { get; }
 
-        public IncomeViewModel(ITransactionService transactionService)
+        public IncomeViewModel(ITransactionService transactionService, ICategoryService categoryService)
         {
             _transactionService = transactionService;
+            _categoryService = categoryService;
 
-            LoadCommand = new RelayCommand(async _ => await LoadTransactionsAsync());
-            AddCommand = new RelayCommand(async _ => await AddTransactionAsync());
+            AddCommand = new RelayCommand(async _ => await AddTransactionAsync(), _ => SelectedTransaction == null);
             SaveCommand = new RelayCommand(async _ => await SaveTransactionAsync(), _ => SelectedTransaction != null);
             DeleteCommand = new RelayCommand(async _ => await DeleteTransactionAsync(), _ => SelectedTransaction != null);
             ClearCommand = RelayCommand.FromAction(ClearFields);
+        }
 
-            // load initial data
-            _ = LoadTransactionsAsync();
+        public async Task LoadAsync()
+        {
+            await LoadCategoriesAsync();
+            await LoadTransactionsAsync();
+        }
+
+        //Public or private?
+        private async Task LoadCategoriesAsync()
+        {
+            AllCategories.Clear();
+            var categories = await _categoryService.GetAllCategoriesAsync();
+            foreach (var c in categories)
+                AllCategories.Add(c);
+        }
+
+        //Public or private?
+        public async Task LoadTransactionsAsync()
+        {
+            Transactions.Clear();
+            var incomeTransactions = await _transactionService.GetAllIncomeTransactionsAsync();
+            foreach (var t in incomeTransactions)
+            {
+                Transactions.Add(t);
+            }
         }
 
         private void PopulateEditFields()
@@ -61,35 +90,35 @@ namespace PersonalFinance.ViewModels
             {
                 Amount = SelectedTransaction.Amount;
                 Frequency = SelectedTransaction.Frequency;
-                CategoryName = SelectedTransaction.Category?.Name ?? string.Empty;
+                SelectedCategory = AllCategories
+                    .FirstOrDefault(c => c.Id == SelectedTransaction.Category?.Id);
 
                 RaisePropertyChanged(nameof(Amount));
                 RaisePropertyChanged(nameof(Frequency));
-                RaisePropertyChanged(nameof(CategoryName));
+                RaisePropertyChanged(nameof(SelectedCategory));
             }
-        }
-
-        public async Task LoadTransactionsAsync()
-        {
-            Transactions.Clear();
-            var items = await _transactionService.GetAllIncomeTransactionsAsync();
-            foreach (var t in items) Transactions.Add(t);
         }
 
         public async Task AddTransactionAsync()
         {
+            if (SelectedCategory == null)
+            {
+                MessageBox.Show("Please select a category.");
+                return;
+            }
+
             try
             {
-                var tx = new FinancialTransaction
+                var newTransaction = new FinancialTransaction
                 {
-                    Amount = Amount,
+                    Amount = this.Amount,
                     Type = TypeOfTransaction.Income,
-                    Frequency = Frequency,
-                    Category = new Category { Name = CategoryName }
+                    Frequency = this.Frequency,
+                    Category = SelectedCategory
                 };
 
-                await _transactionService.AddTransactionAsync(tx);
-                Transactions.Add(tx);
+                await _transactionService.AddTransactionAsync(newTransaction);
+                Transactions.Add(newTransaction);
                 ClearFields();
             }
             catch (Exception ex)
@@ -100,12 +129,14 @@ namespace PersonalFinance.ViewModels
 
         public async Task SaveTransactionAsync()
         {
-            if (SelectedTransaction == null) return;
+            if (SelectedTransaction == null || SelectedCategory == null)
+                return;
+
             try
             {
                 SelectedTransaction.Amount = Amount;
                 SelectedTransaction.Frequency = Frequency;
-                SelectedTransaction.Category = new Category { Name = CategoryName };
+                SelectedTransaction.Category = SelectedCategory;
 
                 await _transactionService.EditTransactionAsync(SelectedTransaction);
                 // Refresh list item (simple approach: reload everything)
@@ -120,6 +151,7 @@ namespace PersonalFinance.ViewModels
         public async Task DeleteTransactionAsync()
         {
             if (SelectedTransaction == null) return;
+
             try
             {
                 await _transactionService.DeleteTransactionAsync(SelectedTransaction.Id);
@@ -137,11 +169,11 @@ namespace PersonalFinance.ViewModels
             SelectedTransaction = null;
             Amount = 0;
             Frequency = FrequencyOfTransaction.OneTime;
-            CategoryName = string.Empty;
+            SelectedCategory = null;
 
             RaisePropertyChanged(nameof(Amount));
             RaisePropertyChanged(nameof(Frequency));
-            RaisePropertyChanged(nameof(CategoryName));
+            RaisePropertyChanged(nameof(SelectedCategory));
         }
     }
 }

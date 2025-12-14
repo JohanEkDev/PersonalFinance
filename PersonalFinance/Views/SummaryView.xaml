@@ -3,11 +3,57 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:PersonalFinance.Views">
+      xmlns:local="clr-namespace:PersonalFinance.Views"
+      xmlns:resources="clr-namespace:PersonalFinance.Resources">
 
-    <StackPanel Margin="10">
-        <TextBlock Text="{Binding Title}"
-                   FontSize="18" FontWeight="Bold" Margin="0,0,0,8"/>
-        <ItemsControl ItemsSource="{Binding SummaryLines}" />
-    </StackPanel>
+    <UserControl.Resources>
+        <resources:ColorValueConverter x:Key="ColorValue"/>
+    </UserControl.Resources>
+
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0" Padding="8" BorderBrush="Gray" BorderThickness="1" CornerRadius="4">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="400">
+
+                <TextBlock Text="Summary"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Margin="0,0,0,20"
+                       HorizontalAlignment="Center"/>
+
+                <!-- Income -->
+                <StackPanel Orientation="Horizontal" Margin="0,8">
+                    <TextBlock Text="Total Income:" FontWeight="SemiBold" Width="150"/>
+                    <TextBlock Text="{Binding TotalIncome}" />
+                </StackPanel>
+
+                <!-- Expense -->
+                <StackPanel Orientation="Horizontal" Margin="0,8">
+                    <TextBlock Text="Total Expense:" FontWeight="SemiBold" Width="150"/>
+                    <TextBlock Text="{Binding TotalExpense}" />
+                </StackPanel>
+
+                <!-- Net -->
+                <StackPanel Orientation="Horizontal" Margin="0,12">
+                    <TextBlock Text="Net Total:" FontWeight="Bold" Width="150"/>
+                    <TextBlock Text="{Binding NetTotal}"
+                           FontWeight="Bold"
+                           Foreground="{Binding NetTotal, Converter={StaticResource ColorValue}}"/>
+                </StackPanel>
+
+                <Button Content="Reload"
+                    Command="{Binding ReloadCommand}"
+                    Width="100"
+                    HorizontalAlignment="Center"
+                    Margin="0,20,0,0"/>
+            </StackPanel>
+        </Border>
+        
+        <Border Grid.Column="1" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="4" Margin="8,0,0,0" Background="#FFEFEFEF">
+        </Border>
+
+    </Grid>
 </UserControl>

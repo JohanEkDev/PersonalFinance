@@ -13,7 +13,7 @@ using System.Windows.Input;
 
 namespace PersonalFinance.ViewModels
 {
-    public class TransactionViewModel : ViewModelBase
+    public class TransactionViewModel : BaseViewModel
     {
         private ObservableCollection<FinancialTransaction> _transactions;
         public ObservableCollection<FinancialTransaction> Transactions

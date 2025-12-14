@@ -15,7 +15,7 @@ using System.Windows.Input;
 
 namespace PersonalFinance.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : BaseViewModel
     {
         private readonly IServiceProvider _services;
 
@@ -49,5 +49,11 @@ namespace PersonalFinance.ViewModels
         {
             CurrentView = _services.GetRequiredService<T>();
         }
+
+        //public async Task LoadAsync()
+        //{
+        //    //Is this needed here?
+        //    throw new NotImplementedException();
+        //}
     }
 }

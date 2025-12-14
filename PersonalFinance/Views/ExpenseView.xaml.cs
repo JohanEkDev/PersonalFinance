@@ -18,10 +18,19 @@ namespace PersonalFinance.Views
 {
     public partial class ExpenseView : UserControl
     {
+        private readonly ExpenseViewModel _vm;
+
         public ExpenseView(ExpenseViewModel vm)
         {
             InitializeComponent();
+            _vm = vm;
             DataContext = vm;
+            Loaded += ExpenseView_Loaded;
+        }
+
+        private async void ExpenseView_Loaded(object sender, RoutedEventArgs e)
+        {
+            await _vm.LoadAsync();
         }
     }
 }

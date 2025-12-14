@@ -11,7 +11,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <!--<ColumnDefinition Width="*"/>-->
         </Grid.ColumnDefinitions>
 
         <!-- Navigation panel -->
@@ -30,8 +30,8 @@
         <ContentControl Grid.Column="1" Content="{Binding CurrentView}" />
 
         <!-- Optional details panel -->
-        <StackPanel Grid.Column="2" Background="#FFEFEFEF">
-            <!-- Place details or summary info here -->
-        </StackPanel>
+        <!--<StackPanel Grid.Column="2" Background="#FFEFEFEF">
+            --><!-- Place details or summary info here --><!--
+        </StackPanel>-->
     </Grid>
 </Window>

@@ -16,15 +16,21 @@ using System.Windows.Shapes;
 
 namespace PersonalFinance.Views
 {
-    /// <summary>
-    /// Interaction logic for SummaryView.xaml
-    /// </summary>
     public partial class SummaryView : UserControl
     {
+        private readonly SummaryViewModel _vm;
+
         public SummaryView(SummaryViewModel vm)
         {
             InitializeComponent();
+            _vm = vm;
             DataContext = vm;
+            Loaded += SummaryView_Loaded;
+        }
+
+        private async void SummaryView_Loaded(object sender, RoutedEventArgs e)
+        {
+            await _vm.LoadAsync();
         }
     }
 }
