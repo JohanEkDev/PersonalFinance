@@ -1,0 +1,98 @@
+﻿<UserControl x:Class="PersonalFinance.Views.PrognosisView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:PersonalFinance.Views"
+      xmlns:resources="clr-namespace:PersonalFinance.Resources">
+
+    <UserControl.Resources>
+        <resources:ColorValueConverter x:Key="ColorValue"/>
+    </UserControl.Resources>
+
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Padding="8" BorderBrush="Gray" BorderThickness="1" CornerRadius="4">
+            <StackPanel>
+                <TextBlock Text="Monthly Prognosis"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Margin="0,0,0,8"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,6">
+                    <TextBlock Text="Month:" Width="80"/>
+                    <DatePicker SelectedDate="{Binding SelectedMonth}" Width="150"/>
+                </StackPanel>
+
+                <Separator Margin="0,10"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,6">
+                    <TextBlock Text="Income:" Width="100"/>
+                    <TextBlock Text="{Binding ForecastIncome}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,6">
+                    <TextBlock Text="Expense:" Width="100"/>
+                    <TextBlock Text="{Binding ForecastExpense}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,10">
+                    <TextBlock Text="Net:" Width="100" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding ForecastNet}" FontWeight="Bold"
+                               Foreground="{Binding ForecastNet, Converter={StaticResource ColorValue}}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1"
+                Padding="12"
+                BorderBrush="Gray"
+                BorderThickness="1"
+                CornerRadius="4"
+                Margin="8,0,0,0"
+                Background="#FFEFEFEF">
+
+            <StackPanel>
+
+                <TextBlock Text="Included Incomes"
+                   FontSize="14"
+                   FontWeight="Bold"
+                   Margin="0,0,0,4"/>
+
+                <ListView ItemsSource="{Binding Incomes}" Height="150">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Category}" Width="140"/>
+                            <GridViewColumn Header="Amount" DisplayMemberBinding="{Binding Amount}" Width="80"/>
+                            <GridViewColumn Header="Frequency" DisplayMemberBinding="{Binding Frequency}" Width="90"/>
+                            <GridViewColumn Header="Start Date" DisplayMemberBinding="{Binding StartDate, StringFormat={}{0:yyyy-MM-dd}}" Width="100"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+                <Separator Margin="0,10"/>
+
+                <TextBlock Text="Included Expenses"
+                   FontSize="14"
+                   FontWeight="Bold"
+                   Margin="0,0,0,4"/>
+
+                <ListView ItemsSource="{Binding Expenses}" Height="150">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Category}" Width="140"/>
+                            <GridViewColumn Header="Amount" DisplayMemberBinding="{Binding Amount}" Width="80"/>
+                            <GridViewColumn Header="Frequency" DisplayMemberBinding="{Binding Frequency}" Width="90"/>
+                            <GridViewColumn Header="Start Date" DisplayMemberBinding="{Binding StartDate, StringFormat={}{0:yyyy-MM-dd}}" Width="100"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

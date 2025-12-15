@@ -28,6 +28,13 @@ namespace PersonalFinance.Data
            return await _context.Transactions.ToListAsync();
         }
 
+        public async Task<IEnumerable<FinancialTransaction>> GetAllTransactionsIncludeCategoriesAsync()
+        {
+            return await _context.Transactions
+                .Include(t => t.Category)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<FinancialTransaction>> GetAllIncomeTransactionsAsync()
         {
             return await _context.Transactions.Where(t => t.Type == TypeOfTransaction.Income).ToListAsync();

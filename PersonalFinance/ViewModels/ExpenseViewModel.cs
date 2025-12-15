@@ -27,7 +27,6 @@ namespace PersonalFinance.ViewModels
             set { _selectedTransaction = value; RaisePropertyChanged(); PopulateEditFields(); }
         }
 
-        // Editing / add fields (simple approach)
         public int Amount { get; set; }
         public FrequencyOfTransaction Frequency { get; set; } = FrequencyOfTransaction.OneTime;
         private Category? _selectedCategory;
@@ -37,11 +36,22 @@ namespace PersonalFinance.ViewModels
             set { _selectedCategory = value; RaisePropertyChanged(); }
         }
 
+        private DateTime _startDate = DateTime.Today;
+        public DateTime StartDate
+        {
+            get => _startDate;
+            set
+            {
+                if (_startDate == value) return;
+                _startDate = value;
+                RaisePropertyChanged();
+            }
+        }
+
         //Expose frequencies for ComboBox binding.
         public IEnumerable<FrequencyOfTransaction> Frequencies =>
             Enum.GetValues(typeof(FrequencyOfTransaction)).Cast<FrequencyOfTransaction>();
 
-        //Commands.
         public RelayCommand AddCommand { get; }
         public RelayCommand SaveCommand { get; }
         public RelayCommand DeleteCommand { get; }
@@ -87,10 +97,12 @@ namespace PersonalFinance.ViewModels
                 Frequency = SelectedTransaction.Frequency;
                 SelectedCategory = AllCategories
                     .FirstOrDefault(c => c.Id == SelectedTransaction.Category?.Id);
+                StartDate = SelectedTransaction.StartDate;
 
                 RaisePropertyChanged(nameof(Amount));
                 RaisePropertyChanged(nameof(Frequency));
                 RaisePropertyChanged(nameof(SelectedCategory));
+                RaisePropertyChanged(nameof(StartDate));
             }
         }
 
@@ -109,7 +121,8 @@ namespace PersonalFinance.ViewModels
                     Amount = Amount,
                     Type = TypeOfTransaction.Expense,
                     Frequency = Frequency,
-                    Category = SelectedCategory
+                    Category = SelectedCategory,
+                    StartDate = StartDate
                 };
 
                 await _transactionService.AddTransactionAsync(newTransaction);
@@ -132,9 +145,9 @@ namespace PersonalFinance.ViewModels
                 SelectedTransaction.Amount = Amount;
                 SelectedTransaction.Frequency = Frequency;
                 SelectedTransaction.Category = SelectedCategory;
+                SelectedTransaction.StartDate = StartDate;
 
                 await _transactionService.EditTransactionAsync(SelectedTransaction);
-                // Refresh list item (simple approach: reload everything)
                 await LoadTransactionsAsync();
             }
             catch (Exception ex)
@@ -165,10 +178,12 @@ namespace PersonalFinance.ViewModels
             Amount = 0;
             Frequency = FrequencyOfTransaction.OneTime;
             SelectedCategory = null;
+            StartDate = DateTime.Today;
 
             RaisePropertyChanged(nameof(Amount));
             RaisePropertyChanged(nameof(Frequency));
             RaisePropertyChanged(nameof(SelectedCategory));
+            RaisePropertyChanged(nameof(StartDate));
         }
     }
 }

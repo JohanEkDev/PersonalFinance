@@ -11,6 +11,7 @@ namespace PersonalFinance.Data
     {
         Task<FinancialTransaction?> GetTransactionByIdAsync(int id);
         Task<IEnumerable<FinancialTransaction>> GetAllTransactionsAsync();
+        Task<IEnumerable<FinancialTransaction>> GetAllTransactionsIncludeCategoriesAsync();
         Task<IEnumerable<FinancialTransaction>> GetAllIncomeTransactionsAsync();
         Task<IEnumerable<FinancialTransaction>> GetAllExpenseTransactionsAsync();
         Task AddAsync(FinancialTransaction transaction);

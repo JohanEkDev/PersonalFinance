@@ -27,6 +27,7 @@ namespace PersonalFinance.ViewModels
         }
 
         public RelayCommand ShowSummaryCommand { get; }
+        public RelayCommand ShowPrognosisCommand { get; }
         public RelayCommand ShowIncomeCommand { get; }
         public RelayCommand ShowExpenseCommand { get; }
         public RelayCommand ShowCategoriesCommand { get; }
@@ -37,11 +38,12 @@ namespace PersonalFinance.ViewModels
 
             //Initialize commands.
             ShowSummaryCommand = new RelayCommand(_ => Navigate<SummaryView>());
+            ShowPrognosisCommand = new RelayCommand(_ => Navigate<PrognosisView>());
             ShowIncomeCommand = new RelayCommand(_ => Navigate<IncomeView>());
             ShowExpenseCommand = new RelayCommand(_ => Navigate<ExpenseView>());
             ShowCategoriesCommand = new RelayCommand(_ => Navigate<CategoriesView>());
 
-            //Dfault view.
+            //Default view.
             Navigate<SummaryView>();
         }
 
@@ -49,11 +51,5 @@ namespace PersonalFinance.ViewModels
         {
             CurrentView = _services.GetRequiredService<T>();
         }
-
-        //public async Task LoadAsync()
-        //{
-        //    //Is this needed here?
-        //    throw new NotImplementedException();
-        //}
     }
 }

@@ -24,31 +24,23 @@
                        Margin="0,0,0,20"
                        HorizontalAlignment="Center"/>
 
-                <!-- Income -->
                 <StackPanel Orientation="Horizontal" Margin="0,8">
                     <TextBlock Text="Total Income:" FontWeight="SemiBold" Width="150"/>
                     <TextBlock Text="{Binding TotalIncome}" />
                 </StackPanel>
 
-                <!-- Expense -->
                 <StackPanel Orientation="Horizontal" Margin="0,8">
                     <TextBlock Text="Total Expense:" FontWeight="SemiBold" Width="150"/>
                     <TextBlock Text="{Binding TotalExpense}" />
                 </StackPanel>
 
-                <!-- Net -->
                 <StackPanel Orientation="Horizontal" Margin="0,12">
                     <TextBlock Text="Net Total:" FontWeight="Bold" Width="150"/>
                     <TextBlock Text="{Binding NetTotal}"
                            FontWeight="Bold"
                            Foreground="{Binding NetTotal, Converter={StaticResource ColorValue}}"/>
                 </StackPanel>
-
-                <Button Content="Reload"
-                    Command="{Binding ReloadCommand}"
-                    Width="100"
-                    HorizontalAlignment="Center"
-                    Margin="0,20,0,0"/>
+                
             </StackPanel>
         </Border>
         
