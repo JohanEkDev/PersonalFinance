@@ -48,6 +48,17 @@ namespace PersonalFinance.ViewModels
             }
         }
 
+        private DateTime? _endDate;
+        public DateTime? EndDate
+        {
+            get => _endDate;
+            set
+            {
+                _endDate = value;
+                RaisePropertyChanged();
+            }
+        }
+
         //Expose frequencies for ComboBox binding.
         public IEnumerable<FrequencyOfTransaction> Frequencies =>
             Enum.GetValues(typeof(FrequencyOfTransaction)).Cast<FrequencyOfTransaction>();
@@ -98,11 +109,13 @@ namespace PersonalFinance.ViewModels
                 SelectedCategory = AllCategories
                     .FirstOrDefault(c => c.Id == SelectedTransaction.Category?.Id);
                 StartDate = SelectedTransaction.StartDate;
+                EndDate = SelectedTransaction.EndDate;
 
                 RaisePropertyChanged(nameof(Amount));
                 RaisePropertyChanged(nameof(Frequency));
                 RaisePropertyChanged(nameof(SelectedCategory));
                 RaisePropertyChanged(nameof(StartDate));
+                RaisePropertyChanged(nameof(EndDate));
             }
         }
 
@@ -122,7 +135,8 @@ namespace PersonalFinance.ViewModels
                     Type = TypeOfTransaction.Expense,
                     Frequency = Frequency,
                     Category = SelectedCategory,
-                    StartDate = StartDate
+                    StartDate = StartDate,
+                    EndDate = EndDate
                 };
 
                 await _transactionService.AddTransactionAsync(newTransaction);
@@ -146,6 +160,7 @@ namespace PersonalFinance.ViewModels
                 SelectedTransaction.Frequency = Frequency;
                 SelectedTransaction.Category = SelectedCategory;
                 SelectedTransaction.StartDate = StartDate;
+                SelectedTransaction.EndDate = EndDate;
 
                 await _transactionService.EditTransactionAsync(SelectedTransaction);
                 await LoadTransactionsAsync();

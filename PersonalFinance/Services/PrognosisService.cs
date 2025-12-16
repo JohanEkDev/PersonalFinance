@@ -20,63 +20,131 @@ namespace PersonalFinance.Services
             _transactionRepository = transactionRepository;
         }
 
-        public async Task<MonthlyForecastResult> GetMonthlyForecastAsync(DateTime selectedMonth)
+        public async Task<MonthlyResult> GetMonthlyPrognosisAsync(DateTime month)
         {
-            var transactions = await _transactionRepository.GetAllTransactionsIncludeCategoriesAsync();
+            if (month <= DateTime.Today)
+                throw new ArgumentException("Prognosis must be for a future month.");
 
-            var applicable = transactions
-                .Where(t => AppliesToMonth(t, selectedMonth))
+            var allTransactions = await _transactionRepository.GetAllTransactionsIncludeCategoriesAsync();
+
+            var applicable = allTransactions
+                .Where(t => IsApplicableForMonthPrognosis(t, month))
                 .ToList();
 
-            var incomes = applicable
-                .Where(t => t.Type == TypeOfTransaction.Income)
-                .Select(t => ToForecastItem(t))
-                .ToList();
+            var income = applicable.Where(t => t.Type == TypeOfTransaction.Income).ToList();
+            var expense = applicable.Where(t => t.Type == TypeOfTransaction.Expense).ToList();
 
-            var expenses = applicable
-                .Where(t => t.Type == TypeOfTransaction.Expense)
-                .Select(t => ToForecastItem(t))
-                .ToList();
-
-            return new MonthlyForecastResult
+            return new MonthlyResult
             {
-                TotalIncome = incomes.Sum(i => i.Amount),
-                TotalExpense = expenses.Sum(e => e.Amount),
-                Incomes = incomes,
-                Expenses = expenses
+                IncomeTransactions = income,
+                ExpenseTransactions = expense,
+                TotalIncome = income.Sum(t => t.Amount),
+                TotalExpense = expense.Sum(t => t.Amount)
             };
         }
 
-        private static ForecastItem ToForecastItem(FinancialTransaction transaction)
+        public async Task<YearlyResult> GetYearlyPrognosisAsync(int year)
         {
-            return new ForecastItem
+            var allTransactions =
+                await _transactionRepository.GetAllTransactionsIncludeCategoriesAsync();
+
+            int totalIncome = 0;
+            int totalExpense = 0;
+
+            foreach (var t in allTransactions)
             {
-                Category = transaction.Category.Name,
-                Amount = transaction.Amount,
-                StartDate = transaction.StartDate,
-                Frequency = transaction.Frequency
+                NormalizeTransaction(t);
+
+                int yearlyAmount = t.Frequency switch
+                {
+                    FrequencyOfTransaction.OneTime =>
+                        t.StartDate.Year == year ? t.Amount : 0,
+
+                    FrequencyOfTransaction.Monthly =>
+                        CalculateMonthlyPrognosisContribution(t, year),
+
+                    FrequencyOfTransaction.Yearly =>
+                        CalculateYearlyContribution(t, year),
+
+                    _ => 0
+                };
+
+                if (t.Type == TypeOfTransaction.Income)
+                    totalIncome += yearlyAmount;
+                else
+                    totalExpense += yearlyAmount;
+            }
+
+            return new YearlyResult
+            {
+                Year = year,
+                TotalIncome = totalIncome,
+                TotalExpense = totalExpense
             };
         }
 
-        private static bool AppliesToMonth(FinancialTransaction transaction, DateTime selectedMonth)
+        private bool IsApplicableForMonthPrognosis(FinancialTransaction transaction, DateTime month)
         {
-            var target = new DateTime(selectedMonth.Year, selectedMonth.Month, 1);
+            var periodStart = new DateTime(month.Year, month.Month, 1);
+            var periodEnd = periodStart.AddMonths(1).AddDays(-1);
 
-            return transaction.Frequency switch
+            if (transaction.Frequency == FrequencyOfTransaction.OneTime)
             {
-                FrequencyOfTransaction.OneTime =>
-                    transaction.StartDate.Year == target.Year &&
-                    transaction.StartDate.Month == target.Month,
+                return transaction.StartDate.Year == month.Year &&
+                       transaction.StartDate.Month == month.Month;
+            }
 
-                FrequencyOfTransaction.Monthly =>
-                    transaction.StartDate <= target &&
-                    (transaction.EndDate == null || transaction.EndDate >= target),
+            // Monthly / Yearly
+            if (transaction.StartDate > periodEnd)
+                return false;
 
-                FrequencyOfTransaction.Yearly =>
-                    transaction.StartDate.Month == target.Month,
+            if (transaction.EndDate.HasValue && transaction.EndDate.Value < periodStart)
+                return false;
 
-                _ => false
-            };
+            if (transaction.Frequency == FrequencyOfTransaction.Yearly)
+                return transaction.StartDate.Month == month.Month;
+
+            return true; // Monthly
         }
+
+        private int CalculateMonthlyPrognosisContribution(FinancialTransaction transaction, int year)
+        {
+            if (transaction.StartDate.Year > year)
+                return 0;
+
+            if (transaction.EndDate.HasValue && transaction.EndDate.Value.Year < year)
+                return 0;
+
+            int startMonth = transaction.StartDate.Year == year
+                ? transaction.StartDate.Month
+                : 1;
+
+            int endMonth = transaction.EndDate.HasValue && transaction.EndDate.Value.Year == year
+                ? transaction.EndDate.Value.Month
+                : 12;
+
+            if (endMonth < startMonth)
+                return 0;
+
+            return (endMonth - startMonth + 1) * transaction.Amount;
+        }
+
+        private int CalculateYearlyContribution(FinancialTransaction transaction, int year)
+        {
+            if (transaction.StartDate.Year > year)
+                return 0;
+
+            if (transaction.EndDate.HasValue && transaction.EndDate.Value.Year < year)
+                return 0;
+
+            return transaction.Amount;
+        }
+
+        private void NormalizeTransaction(FinancialTransaction transaction)
+        {
+            if (transaction.Frequency == FrequencyOfTransaction.OneTime)
+                transaction.EndDate = null;
+        }
+
     }
 }

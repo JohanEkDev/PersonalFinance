@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace PersonalFinance.DTOs
 {
-    public class MonthlyForecastResult
+    public class YearlyResult
     {
+        public int Year { get; set; }
+
         public int TotalIncome { get; set; }
         public int TotalExpense { get; set; }
 
-        public List<ForecastItem> Incomes { get; set; } = new();
-        public List<ForecastItem> Expenses { get; set; } = new();
+        public int Net => TotalIncome - TotalExpense;
     }
 }

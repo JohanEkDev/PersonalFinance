@@ -10,6 +10,7 @@ namespace PersonalFinance.Services
     public interface ITransactionService
     {
         Task<IEnumerable<FinancialTransaction>> GetAllTransactionsAsync();
+        Task<IEnumerable<FinancialTransaction>> GetAllTransactionsIncludeCategoriesAsync();
         Task<IEnumerable<FinancialTransaction>> GetAllIncomeTransactionsAsync();
         Task<IEnumerable<FinancialTransaction>> GetAllExpenseTransactionsAsync();
         Task<FinancialTransaction?> GetTransactionByIdAsync(int id);

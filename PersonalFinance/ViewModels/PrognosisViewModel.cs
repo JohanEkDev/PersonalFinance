@@ -1,63 +1,209 @@
 ﻿using PersonalFinance.Command;
 using PersonalFinance.DTOs;
+using PersonalFinance.Enums;
+using PersonalFinance.Models;
 using PersonalFinance.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace PersonalFinance.ViewModels
 {
+    using System.Collections.ObjectModel;
+    using System.Globalization;
+
     public class PrognosisViewModel : BaseViewModel
     {
         private readonly IPrognosisService _prognosisService;
 
-        private DateTime _selectedMonth = DateTime.Today;
-        public DateTime SelectedMonth
+        // Transactions for UI
+        public ObservableCollection<FinancialTransaction> IncomeTransactions { get; } = new();
+        public ObservableCollection<FinancialTransaction> ExpenseTransactions { get; } = new();
+
+        // Month/Year selectors
+        public ObservableCollection<string> Months { get; } = new();
+        public ObservableCollection<int> Years { get; } = new();
+
+        private int _selectedYear = DateTime.Today.Year;
+        public int SelectedYear
         {
-            get => _selectedMonth;
+            get => _selectedYear;
             set
             {
-                if (_selectedMonth == value) return;
-                _selectedMonth = value;
+                if (_selectedYear == value) return;
+                _selectedYear = value;
                 RaisePropertyChanged();
-                LoadAsync(); //Reload data when month changes. How do we set this up better for async?
+                RebuildMonths(); // update months for the newly selected year
             }
         }
 
-        public int ForecastIncome { get; private set; }
-        public int ForecastExpense { get; private set; }
-        public int ForecastNet => ForecastIncome - ForecastExpense;
+        private int _selectedMonthIndex;
+        public int SelectedMonthIndex
+        {
+            get => _selectedMonthIndex;
+            set
+            {
+                if (_selectedMonthIndex == value) return;
+                _selectedMonthIndex = value;
+                RaisePropertyChanged();
+            }
+        }
 
-        public ObservableCollection<ForecastItem> Incomes { get; } = new();
-        public ObservableCollection<ForecastItem> Expenses { get; } = new();
+        // Forecast totals
+        private int _monthlyTotalIncome;
+        public int MonthlyTotalIncome
+        {
+            get => _monthlyTotalIncome;
+            private set
+            {
+                _monthlyTotalIncome = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(MonthlyTotalNet));
+            }
+        }
+
+        private int _monthlyTotalExpense;
+        public int MonthlyTotalExpense
+        {
+            get => _monthlyTotalExpense;
+            private set
+            {
+                _monthlyTotalExpense = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(MonthlyTotalNet));
+            }
+        }
+
+        public int MonthlyTotalNet => MonthlyTotalIncome - MonthlyTotalExpense;
+
+        private int _yearlyTotalIncome;
+        public int YearlyTotalIncome
+        {
+            get => _yearlyTotalIncome;
+            private set {
+                _yearlyTotalIncome = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(YearlyTotalNet));
+            }
+        }
+
+        private int _yearlyTotalExpense;
+        public int YearlyTotalExpense
+        {
+            get => _yearlyTotalExpense;
+            private set
+            {
+                _yearlyTotalExpense = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(YearlyTotalNet));
+            }
+        }
+
+        public int YearlyTotalNet => YearlyTotalIncome - YearlyTotalExpense;
+
+        // Command to load prognosis
+        public RelayCommand LoadCommand { get; }
+
+        // Compute selected month date safely
+        private DateTime SelectedMonthDate
+        {
+            get
+            {
+                int startMonth = SelectedYear == DateTime.Today.Year
+                    ? DateTime.Today.Month + 1
+                    : 1;
+
+                int month = startMonth + SelectedMonthIndex;
+
+                // clamp month to 12
+                if (month > 12) month = 1;
+
+                return new DateTime(SelectedYear, month, 1);
+            }
+        }
 
         public PrognosisViewModel(IPrognosisService prognosisService)
         {
-            _prognosisService = prognosisService;
+            _prognosisService = prognosisService ?? throw new ArgumentNullException(nameof(prognosisService));
+            LoadCommand = new RelayCommand(async _ => await LoadAsync());
+
+            RebuildYears();
+            RebuildMonths();
         }
 
+        // Load prognosis from service
         public async Task LoadAsync()
         {
-            var result = await _prognosisService.GetMonthlyForecastAsync(SelectedMonth);
+            var month = SelectedMonthDate;
 
-            ForecastIncome = result.TotalIncome;
-            ForecastExpense = result.TotalExpense;
+            IncomeTransactions.Clear();
+            ExpenseTransactions.Clear();
 
-            Incomes.Clear();
-            Expenses.Clear();
+            // Monthly
+            var monthly = await _prognosisService.GetMonthlyPrognosisAsync(month);
 
-            foreach (var item in result.Incomes)
-                Incomes.Add(item);
+            foreach (var t in monthly.IncomeTransactions)
+                IncomeTransactions.Add(t);
 
-            foreach (var item in result.Expenses)
-                Expenses.Add(item);
+            foreach (var t in monthly.ExpenseTransactions)
+                ExpenseTransactions.Add(t);
 
-            RaisePropertyChanged(nameof(ForecastIncome));
-            RaisePropertyChanged(nameof(ForecastExpense));
-            RaisePropertyChanged(nameof(ForecastNet));
+            MonthlyTotalIncome = monthly.TotalIncome;
+            MonthlyTotalExpense = monthly.TotalExpense;
+
+            // Yearly
+            var yearly = await _prognosisService.GetYearlyPrognosisAsync(SelectedYear);
+            YearlyTotalIncome = yearly.TotalIncome;
+            YearlyTotalExpense = yearly.TotalExpense;
+        }
+
+        // Populate Years ComboBox with current + next 5 years
+        private void RebuildYears()
+        {
+            Years.Clear();
+            int currentYear = DateTime.Today.Year;
+            int currentMonth = DateTime.Today.Month;
+            int maxYear = currentYear + 5;
+
+            for (int y = currentYear; y <= maxYear; y++)
+            {
+                if (y == currentYear && currentMonth == 12)
+                    continue;
+
+                Years.Add(y);
+            }
+
+            if (!Years.Contains(SelectedYear))
+                SelectedYear = Years.FirstOrDefault();
+        }
+
+        // Populate Months ComboBox based on SelectedYear
+        private void RebuildMonths()
+        {
+            Months.Clear();
+
+            var allMonths = CultureInfo
+                .GetCultureInfo("en-US")
+                .DateTimeFormat
+                .MonthNames
+                .ToArray();
+
+            int startMonth = SelectedYear == DateTime.Today.Year
+                ? DateTime.Today.Month + 1
+                : 1;
+
+            if (startMonth > 12)
+                startMonth = 12;
+
+            for (int m = startMonth; m <= 12; m++)
+                Months.Add(allMonths[m - 1]);
+
+            SelectedMonthIndex = 0;
         }
     }
+
 }

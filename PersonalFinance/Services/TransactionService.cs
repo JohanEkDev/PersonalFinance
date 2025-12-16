@@ -22,6 +22,11 @@ namespace PersonalFinance.Services
             return await _transactionRepository.GetAllTransactionsAsync();
         }
 
+        public async Task<IEnumerable<FinancialTransaction>> GetAllTransactionsIncludeCategoriesAsync()
+        {
+            return await _transactionRepository.GetAllTransactionsIncludeCategoriesAsync();
+        }
+
         public async Task<IEnumerable<FinancialTransaction>> GetAllIncomeTransactionsAsync()
         {
             return await _transactionRepository.GetAllIncomeTransactionsAsync();

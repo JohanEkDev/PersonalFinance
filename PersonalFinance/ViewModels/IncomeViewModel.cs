@@ -42,8 +42,18 @@ namespace PersonalFinance.ViewModels
             get => _startDate;
             set
             {
-                if (_startDate == value) return;
                 _startDate = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private DateTime? _endDate;
+        public DateTime? EndDate
+        {
+            get => _endDate;
+            set
+            {
+                _endDate = value;
                 RaisePropertyChanged();
             }
         }
@@ -74,7 +84,6 @@ namespace PersonalFinance.ViewModels
             await LoadTransactionsAsync();
         }
 
-        //Public or private?
         private async Task LoadCategoriesAsync()
         {
             AllCategories.Clear();
@@ -83,8 +92,7 @@ namespace PersonalFinance.ViewModels
                 AllCategories.Add(c);
         }
 
-        //Public or private?
-        public async Task LoadTransactionsAsync()
+        private async Task LoadTransactionsAsync()
         {
             Transactions.Clear();
             var incomeTransactions = await _transactionService.GetAllIncomeTransactionsAsync();
@@ -103,11 +111,13 @@ namespace PersonalFinance.ViewModels
                 SelectedCategory = AllCategories
                     .FirstOrDefault(c => c.Id == SelectedTransaction.Category?.Id);
                 StartDate = SelectedTransaction.StartDate;
+                EndDate = SelectedTransaction.EndDate;
 
                 RaisePropertyChanged(nameof(Amount));
                 RaisePropertyChanged(nameof(Frequency));
                 RaisePropertyChanged(nameof(SelectedCategory));
                 RaisePropertyChanged(nameof(StartDate));
+                RaisePropertyChanged(nameof(EndDate));
             }
         }
 
@@ -127,7 +137,8 @@ namespace PersonalFinance.ViewModels
                     Type = TypeOfTransaction.Income,
                     Frequency = this.Frequency,
                     Category = SelectedCategory,
-                    StartDate = StartDate
+                    StartDate = StartDate,
+                    EndDate = EndDate
                 };
 
                 await _transactionService.AddTransactionAsync(newTransaction);
@@ -151,6 +162,7 @@ namespace PersonalFinance.ViewModels
                 SelectedTransaction.Frequency = Frequency;
                 SelectedTransaction.Category = SelectedCategory;
                 SelectedTransaction.StartDate = StartDate;
+                SelectedTransaction.EndDate = EndDate;
 
                 await _transactionService.EditTransactionAsync(SelectedTransaction);
                 await LoadTransactionsAsync();

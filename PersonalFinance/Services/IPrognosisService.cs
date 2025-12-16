@@ -9,6 +9,7 @@ namespace PersonalFinance.Services
 {
     public interface IPrognosisService
     {
-        Task<MonthlyForecastResult> GetMonthlyForecastAsync(DateTime selectedMonth);
+        Task<MonthlyResult> GetMonthlyPrognosisAsync(DateTime selectedMonth);
+        Task<YearlyResult> GetYearlyPrognosisAsync(int year);
     }
 }

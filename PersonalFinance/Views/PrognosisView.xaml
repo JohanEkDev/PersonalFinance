@@ -16,34 +16,64 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- LEFT: Selector + Forecast summary -->
         <Border Grid.Column="0" Padding="8" BorderBrush="Gray" BorderThickness="1" CornerRadius="4">
             <StackPanel>
-                <TextBlock Text="Monthly Prognosis"
-                   FontSize="16"
-                   FontWeight="Bold"
-                   Margin="0,0,0,8"/>
+                <TextBlock Text="Select Period"
+                           FontWeight="Bold"
+                           Margin="0,0,0,8"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <ComboBox Width="140"
+                              ItemsSource="{Binding Months}"
+                              SelectedIndex="{Binding SelectedMonthIndex}" />
 
-                <StackPanel Orientation="Horizontal" Margin="0,6">
-                    <TextBlock Text="Month:" Width="80"/>
-                    <DatePicker SelectedDate="{Binding SelectedMonth}" Width="150"/>
+                    <ComboBox Width="90"
+                              Margin="8,0,0,0"
+                              ItemsSource="{Binding Years}"
+                              SelectedItem="{Binding SelectedYear}" />
+
+                    <Button Content="Load prognosis"
+                            Margin="12,0,0,0"
+                            Command="{Binding LoadCommand}" />
                 </StackPanel>
 
-                <Separator Margin="0,10"/>
+                <StackPanel>
+                    <TextBlock Text="Monthly Prognosis"
+                               FontWeight="Bold"
+                               Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,6">
+                        <TextBlock Text="Income:" Width="100"/>
+                        <TextBlock Text="{Binding MonthlyTotalIncome}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,6">
+                        <TextBlock Text="Expense:" Width="100"/>
+                        <TextBlock Text="{Binding MonthlyTotalExpense}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10">
+                        <TextBlock Text="Net:" Width="100" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding MonthlyTotalNet}" FontWeight="Bold"
+                                   Foreground="{Binding MonthlyTotalNet, Converter={StaticResource ColorValue}}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock Text="Yearly Prognosis"
+                           FontWeight="Bold"
+                           Margin="0,16,0,8"/>
 
                 <StackPanel Orientation="Horizontal" Margin="0,6">
                     <TextBlock Text="Income:" Width="100"/>
-                    <TextBlock Text="{Binding ForecastIncome}"/>
+                    <TextBlock Text="{Binding YearlyTotalIncome}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0,6">
                     <TextBlock Text="Expense:" Width="100"/>
-                    <TextBlock Text="{Binding ForecastExpense}"/>
+                    <TextBlock Text="{Binding YearlyTotalExpense}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0,10">
                     <TextBlock Text="Net:" Width="100" FontWeight="Bold"/>
-                    <TextBlock Text="{Binding ForecastNet}" FontWeight="Bold"
-                               Foreground="{Binding ForecastNet, Converter={StaticResource ColorValue}}"/>
+                    <TextBlock Text="{Binding YearlyTotalNet}" FontWeight="Bold"
+                    Foreground="{Binding YearlyTotalNet, Converter={StaticResource ColorValue}}"/>
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -55,43 +85,32 @@
                 CornerRadius="4"
                 Margin="8,0,0,0"
                 Background="#FFEFEFEF">
-
             <StackPanel>
-
-                <TextBlock Text="Included Incomes"
-                   FontSize="14"
-                   FontWeight="Bold"
-                   Margin="0,0,0,4"/>
-
-                <ListView ItemsSource="{Binding Incomes}" Height="150">
+                <TextBlock Text="Monthly Income" FontWeight="Bold" Margin="0,0,0,4"/>
+                <ListView ItemsSource="{Binding IncomeTransactions}" Height="200">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Category}" Width="140"/>
+                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Category.Name}" Width="100"/>
                             <GridViewColumn Header="Amount" DisplayMemberBinding="{Binding Amount}" Width="80"/>
-                            <GridViewColumn Header="Frequency" DisplayMemberBinding="{Binding Frequency}" Width="90"/>
                             <GridViewColumn Header="Start Date" DisplayMemberBinding="{Binding StartDate, StringFormat={}{0:yyyy-MM-dd}}" Width="100"/>
+                            <GridViewColumn Header="End Date" DisplayMemberBinding="{Binding EndDate, StringFormat={}{0:yyyy-MM-dd}}" Width="100"/>
+                            <GridViewColumn Header="Frequency" DisplayMemberBinding="{Binding Frequency}" Width="80"/>
                         </GridView>
                     </ListView.View>
                 </ListView>
 
-                <Separator Margin="0,10"/>
-
-                <TextBlock Text="Included Expenses"
-                   FontSize="14"
-                   FontWeight="Bold"
-                   Margin="0,0,0,4"/>
-
-                <ListView ItemsSource="{Binding Expenses}" Height="150">
+                <TextBlock Text="Monthly Expense" FontWeight="Bold" Margin="0,12,0,4"/>
+                <ListView ItemsSource="{Binding ExpenseTransactions}" Height="200">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Category}" Width="140"/>
+                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Category.Name}" Width="100"/>
                             <GridViewColumn Header="Amount" DisplayMemberBinding="{Binding Amount}" Width="80"/>
-                            <GridViewColumn Header="Frequency" DisplayMemberBinding="{Binding Frequency}" Width="90"/>
                             <GridViewColumn Header="Start Date" DisplayMemberBinding="{Binding StartDate, StringFormat={}{0:yyyy-MM-dd}}" Width="100"/>
+                            <GridViewColumn Header="End Date" DisplayMemberBinding="{Binding EndDate, StringFormat={}{0:yyyy-MM-dd}}" Width="100"/>
+                            <GridViewColumn Header="Frequency" DisplayMemberBinding="{Binding Frequency}" Width="80"/>
                         </GridView>
                     </ListView.View>
                 </ListView>
-
             </StackPanel>
         </Border>
     </Grid>
